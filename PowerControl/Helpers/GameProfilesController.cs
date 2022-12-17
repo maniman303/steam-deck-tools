@@ -212,7 +212,7 @@ namespace PowerControl.Helpers
             }
         }
 
-        public static GameProfile CreateProfile(string name)
+        public static void CreateProfile(string name)
         {
             var profile = GameProfile.Copy(GetDefaultProfile());
             profile.name = name;
@@ -220,7 +220,7 @@ namespace PowerControl.Helpers
 
             WriteProfile(profile);
 
-            return profile;
+            CurrentProfile = profile;
         }
 
         public static void WriteProfile(GameProfile profile)
@@ -232,6 +232,26 @@ namespace PowerControl.Helpers
             {
                 File.WriteAllText(fileName, jsonString);
             }
+        }
+
+        public static void RemoveProfile(string profile)
+        {
+            if (profile == GameProfile.DefaultName)
+            {
+                return;
+            }
+
+            string fileName = string.Format("{0}\\{1}.json", profilesPath, profile);
+
+            lock (syncWrite)
+            {
+                if (File.Exists(fileName))
+                {
+                    File.Delete(fileName);
+                }
+            }
+
+            CurrentGame = string.Empty;
         }
 
         public static void Subscribe(Action<GameProfile> action)

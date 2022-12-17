@@ -88,6 +88,76 @@ namespace PowerControl
             }
         }
 
+        public class MenuItemHeader : MenuItem
+        {
+            private ToolStripItem toolStripItem;
+            private string text = GameProfile.DefaultName;
+
+            public string DefaultTitle = string.Empty;
+            public delegate string CurrentTitleDelegate();
+            public delegate bool IsVisibleDelegate();
+            public CurrentTitleDelegate CurrentTitle { get; set; }
+            public IsVisibleDelegate IsVisible { get; set; }
+
+            public MenuItemHeader()
+            {
+                Selectable = false;
+                Visible = false;
+
+                GameProfilesController.Subscribe((_) =>
+                {
+                    Update();
+                });
+            }
+
+            public override void CreateMenu(ToolStripItemCollection collection)
+            {
+                if (toolStripItem != null)
+                    return;
+
+                toolStripItem = new ToolStripLabel(text);
+                toolStripItem.Visible = false;
+                collection.Add(toolStripItem);
+            }
+
+            public override string Render(MenuItem selected)
+            {
+                return Color(text, Colors.Red).PadRight(30);
+            }
+
+            public override void SelectNext()
+            {
+            }
+
+            public override void SelectPrev()
+            {
+            }
+
+            public override void Update()
+            {
+                text = CurrentTitle();
+                Visible = IsVisible();
+                
+                if (toolStripItem != null)
+                {
+                    toolStripItem.Text = text;
+                    toolStripItem.Visible = Visible;
+                }
+            }
+
+            public override void Reset()
+            {
+                text = DefaultTitle;
+                Visible = false;
+
+                if (toolStripItem != null)
+                {
+                    toolStripItem.Text = text;
+                    toolStripItem.Visible = Visible;
+                }
+            }
+        }
+
         public class MenuItemWithOptions : MenuItem
         {
             public delegate object CurrentValueDelegate();
@@ -237,7 +307,7 @@ namespace PowerControl
                     {
                         SelectedOption = option;
 
-                        onApply();
+                        onApply(true);
                     };
                     toolStripItem.DropDownItems.Add(optionItem);
                 }

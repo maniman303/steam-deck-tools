@@ -345,6 +345,7 @@ namespace PowerControl
                 return;
 
             Trace.WriteLine("Show OSD");
+            rootMenu.Update();
             rootMenu.Visible = true;
             setDismissTimer(enableTimer);
             updateOSD();

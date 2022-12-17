@@ -13,6 +13,55 @@ namespace PowerControl
             Name = String.Format("\r\n\r\nPower Control v{0}\r\n", Application.ProductVersion.ToString()),
             Items =
             {
+                new Menu.MenuItemHeader()
+                {
+                    CurrentTitle = () => GameProfilesController.CurrentGame,
+                    IsVisible = () => GameProfilesController.IsSingleDisplay &&
+                        GameProfilesController.CurrentGame != GameProfile.DefaultName,
+                },
+                new Menu.MenuItemWithOptions()
+                {
+                    Name = "Profile",
+                    OptionsValues = delegate()
+                    {
+                        if (!GameProfilesController.IsSingleDisplay ||
+                            GameProfilesController.CurrentGame == GameProfile.DefaultName)
+                        {
+                            return null;
+                        }
+
+                        return new string[]{ "Off", "On" };
+                    },
+                    CurrentValue = delegate()
+                    {
+                        if (!GameProfilesController.IsSingleDisplay ||
+                            GameProfilesController.CurrentGame == GameProfile.DefaultName)
+                        {
+                            return null;
+                        }
+
+                        bool isProfile = GameProfilesController.CheckIfProfileExists(GameProfilesController.CurrentGame);
+
+                        return isProfile ? "On" : "Off";
+                    },
+                    ApplyValue = delegate(object selected)
+                    {
+                        if (selected == "On")
+                        {
+                            GameProfilesController.CreateProfile(GameProfilesController.CurrentGame);
+                        }
+
+                        if (selected == "Off")
+                        {
+                            GameProfilesController.RemoveProfile(GameProfilesController.CurrentGame);
+                        }
+
+                        Root.Update();
+
+                        return selected;
+                    }
+
+                },
                 new Menu.MenuItemWithOptions()
                 {
                     Name = "Brightness",
