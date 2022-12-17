@@ -15,7 +15,7 @@ namespace PowerControl
             {
                 new Menu.MenuItemHeader()
                 {
-                    CurrentTitle = () => GameProfilesController.CurrentGame,
+                    CurrentTitle = () => RTSS.GetCurrentGameName() ?? GameProfile.DefaultName,
                     IsVisible = () => GameProfilesController.IsSingleDisplay &&
                         GameProfilesController.CurrentGame != GameProfile.DefaultName,
                 },
