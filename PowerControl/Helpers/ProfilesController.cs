@@ -86,7 +86,7 @@ namespace PowerControl.Helpers
             {
                 string? key = option.PersistentKey;
 
-                if (key != null && key != Options.ProfilesSwitch.Instance.PersistentKey)
+                if (key != null && key != Options.ProfileSwitch.Instance.PersistentKey)
                 {
                     option.Set(GetValue(option), delay, true);
                 }
@@ -119,7 +119,7 @@ namespace PowerControl.Helpers
 
             if (key != null)
             {
-                if (key == Options.ProfilesSwitch.Instance.PersistentKey)
+                if (key == Options.ProfileSwitch.Instance.PersistentKey)
                 {
                     HandleProfileSwitch(CurrentGame, newValue);
                     return;
