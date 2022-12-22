@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace PowerControl.Options
 {
-    public static class ProfilesSwitch
+    public static class ProfileSwitch
     {
         public static Menu.MenuItemWithOptions Instance = new Menu.MenuItemWithOptions()
         {
