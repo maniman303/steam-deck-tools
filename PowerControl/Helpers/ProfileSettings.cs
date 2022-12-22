@@ -38,5 +38,10 @@ namespace PowerControl.Helper
         {
             get { return File.Exists(this.ConfigFile); }
         }
+
+        public void Remove()
+        {
+            File.Delete(this.ConfigFile);
+        }
     }
 }

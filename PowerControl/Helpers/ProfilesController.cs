@@ -7,9 +7,9 @@ namespace PowerControl.Helpers
     public class ProfilesController
     {
         private const string IsTroubledKey = "IsTroubled";
-        private const string DefaultName = "Default";
+        public const string DefaultName = "Default";
+        public static string CurrentGame { get; private set; } = string.Empty;
 
-        private string CurrentGame = string.Empty;
         private ProfileSettings DefaultSettings = new ProfileSettings(DefaultName);
         private ProfileSettings? CurrentSettings;
         private static string[] troubledGames = { "dragonageinquisition" };
@@ -86,11 +86,31 @@ namespace PowerControl.Helpers
             {
                 string? key = option.PersistentKey;
 
-                if (key != null)
+                if (key != null && key != Options.ProfilesSwitch.Instance.PersistentKey)
                 {
                     option.Set(GetValue(option), delay, true);
                 }
             }
+        }
+
+        private void HandleProfileSwitch(string name, string value)
+        {
+            if (value == "On")
+            {
+                CurrentSettings = new ProfileSettings(name);
+
+                if (troubledGames.Contains(name.ToLower()))
+                {
+                    SetBoolValue(IsTroubledKey, true);
+                }
+            }
+            else if (value == "Off")
+            {
+                CurrentSettings?.Remove();
+                CurrentSettings = null;
+            }
+
+            ApplyProfile();
         }
 
         private void OnOptionValueChange(MenuItemWithOptions options, string? oldValue, string newValue)
@@ -99,6 +119,12 @@ namespace PowerControl.Helpers
 
             if (key != null)
             {
+                if (key == Options.ProfilesSwitch.Instance.PersistentKey)
+                {
+                    HandleProfileSwitch(CurrentGame, newValue);
+                    return;
+                }
+
                 SetValue(key, newValue);
             }
         }

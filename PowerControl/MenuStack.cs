@@ -7,6 +7,7 @@ namespace PowerControl
             Name = String.Format("\r\n\r\nPower Control v{0}\r\n", Application.ProductVersion.ToString()),
             Items =
             {
+                Options.ProfilesSwitch.Instance,
                 Options.Brightness.Instance,
                 Options.Volume.Instance,
                 new Menu.MenuItemSeparator(),
