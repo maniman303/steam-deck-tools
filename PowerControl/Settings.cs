@@ -53,6 +53,12 @@ namespace PowerControl
             set { Set("EnableVolumeControls", value); }
         }
 
+        public bool EnableQuickSettings
+        {
+            get { return Get<bool>("EnableQuickSettings", true); }
+            set { Set("EnableQuickSettings", value); }
+        }
+
         public bool EnableExperimentalFeatures
         {
             get { return Instance.IsDEBUG; }

@@ -7,6 +7,7 @@ using PowerControl.Helpers;
 using RTSSSharedMemoryNET;
 using System.ComponentModel;
 using System.Diagnostics;
+using WindowsInput;
 
 namespace PowerControl
 {
@@ -33,6 +34,9 @@ namespace PowerControl
         SDCInput neptuneDeviceState = new SDCInput();
         DateTime? neptuneDeviceNextKey;
         System.Windows.Forms.Timer neptuneTimer;
+
+        System.Windows.Forms.Timer neptuneQuickSettingsTimer;
+        DateTime? neptuneQuickSettingsNextKey;
 
         ProfilesController profilesController;
 
@@ -181,6 +185,11 @@ namespace PowerControl
                 neptuneTimer.Tick += NeptuneTimer_Tick;
                 neptuneTimer.Enabled = true;
 
+                neptuneQuickSettingsTimer = new System.Windows.Forms.Timer(components);
+                neptuneQuickSettingsTimer.Interval = 32;
+                neptuneQuickSettingsTimer.Tick += NeptuneQuickSettingsTimer_Tick;
+                neptuneQuickSettingsTimer.Enabled = true;
+
                 neptuneDevice.OnInputReceived += NeptuneDevice_OnInputReceived;
                 neptuneDevice.OpenDevice();
                 neptuneDevice.BeginRead();
@@ -258,6 +267,41 @@ namespace PowerControl
         private void dismissNeptuneInput()
         {
             neptuneDeviceNextKey = DateTime.UtcNow.AddDays(1);
+        }
+
+        private void NeptuneQuickSettingsTimer_Tick(object? sender, EventArgs e)
+        {
+            var input = neptuneDeviceState;
+            bool isClicked = input.buttons5 == SDCButton5.BTN_QUICK_ACCESS;
+
+            if (isClicked && neptuneQuickSettingsNextKey == null)
+            {
+                string? currentApplication;
+
+                RTSS.IsOSDForeground(out _, out currentApplication);
+
+                if (currentApplication == null)
+                {
+                    neptuneQuickSettingsNextKey = DateTime.Now;
+                }
+            }
+
+            var time = neptuneQuickSettingsNextKey;
+            if (!isClicked && time != null)
+            {
+                TimeSpan diff = DateTime.Now - (time ?? DateTime.Now);
+                int ms = diff.Milliseconds;
+                int s = diff.Seconds;
+                int mn = diff.Minutes;
+
+                if (ms < 1000 && s == 0 && mn == 0)
+                {
+                    var simulator = new InputSimulator();
+                    simulator.Keyboard.ModifiedKeyStroke(VirtualKeyCode.LWIN, VirtualKeyCode.VK_A);
+                }
+
+                neptuneQuickSettingsNextKey = null;
+            }
         }
 
         private void NeptuneTimer_Tick(object? sender, EventArgs e)

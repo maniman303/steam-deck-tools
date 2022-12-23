@@ -88,7 +88,7 @@ namespace CommonHelpers
 
         public static List<string> GetCurrentApps()
         {
-            var apps = OSD.GetAppEntries(AppFlags.MASK).Select(e => ExtractAppName(e.Name)).ToList();
+            var apps = OSD.GetAppEntries(AppFlags.MASK).Select(e => ExtractAppName(e.Name)).Where(n => n != string.Empty).ToList();
 
             return apps;
         }
