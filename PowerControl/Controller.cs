@@ -186,7 +186,7 @@ namespace PowerControl
                 neptuneTimer.Enabled = true;
 
                 neptuneQuickSettingsTimer = new System.Windows.Forms.Timer(components);
-                neptuneQuickSettingsTimer.Interval = 32;
+                neptuneQuickSettingsTimer.Interval = 1000 / 60;
                 neptuneQuickSettingsTimer.Tick += NeptuneQuickSettingsTimer_Tick;
                 neptuneQuickSettingsTimer.Enabled = true;
 
@@ -280,7 +280,7 @@ namespace PowerControl
 
                 RTSS.IsOSDForeground(out _, out currentApplication);
 
-                if (currentApplication == null)
+                if (currentApplication == null || (currentApplication?.ToLower().Contains("playnite") ?? false))
                 {
                     neptuneQuickSettingsNextKey = DateTime.Now;
                 }
