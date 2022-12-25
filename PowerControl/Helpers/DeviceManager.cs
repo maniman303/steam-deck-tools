@@ -16,38 +16,19 @@ namespace PowerControl.Helpers
     internal class DeviceManager
     {
         public static bool IsDeckOnlyDisplay { get; private set; } =  false;
-        private static Screen[] screens = new Screen[0];
-        public static int NumberOfDisplays
-        {
-            get { return screens.Length; }
-        }
 
         public static void LoadDisplays()
         {
-            screens = Screen.AllScreens;
-            UpdateIsDeckOnlyDisplay(screens);
+            UpdateIsDeckOnlyDisplay();
         }
 
         public static bool RefreshDisplays()
         {
-            var newScreens = Screen.AllScreens;
+            bool prev = IsDeckOnlyDisplay;
 
-            if (newScreens.Length != 1)
-            {
-                IsDeckOnlyDisplay = false;
-            }
-            else
-            {
-                UpdateIsDeckOnlyDisplay(newScreens);
-            }
+            UpdateIsDeckOnlyDisplay();
 
-            if (HaveScreensChanged(newScreens))
-            {
-                screens = newScreens;
-                return true;
-            }
-
-            return false;
+            return prev == IsDeckOnlyDisplay;
         }
 
         public static string[]? GetDevices(Guid? classGuid)
@@ -116,41 +97,54 @@ namespace PowerControl.Helpers
             return ranges;
         }
 
-        unsafe private static void UpdateIsDeckOnlyDisplay(Screen[] screens)
+        unsafe private static void UpdateIsDeckOnlyDisplay()
         {
-            IsDeckOnlyDisplay = false;
+            string query = "select * from WmiMonitorID";
+            var wmiSearcher = new ManagementObjectSearcher("\\root\\wmi", query);
+            var results = wmiSearcher.Get();
 
-            if (screens.Length != 1)
+            int count = results.Count;
+
+            IsDeckOnlyDisplay = count <= 1;
+            if (count <= 1)
             {
-                return;
+                IsDeckOnlyDisplay = true;
             }
-
-            uint numPathArrayElements = 0;
-            uint numModeInfoArrayElements = 0;
-
-            int status = PInvoke.GetDisplayConfigBufferSizes(4, out numPathArrayElements, out numModeInfoArrayElements);
-
-            if (status != 0)
+            else if (Screen.AllScreens.Length > 1)
             {
-                return;
+                IsDeckOnlyDisplay = false;
             }
-
-            DISPLAYCONFIG_PATH_INFO[] pathArray = new DISPLAYCONFIG_PATH_INFO[numPathArrayElements];
-            DISPLAYCONFIG_MODE_INFO[] modeInfoArray = new DISPLAYCONFIG_MODE_INFO[numModeInfoArrayElements];
-            DISPLAYCONFIG_TOPOLOGY_ID currentTopologyID = 0;
-
-            fixed (DISPLAYCONFIG_PATH_INFO* pathArrayPtr = pathArray)
+            else
             {
-                fixed (DISPLAYCONFIG_MODE_INFO* modeInfoArrayPtr = modeInfoArray)
+                IsDeckOnlyDisplay = false;
+
+                uint numPathArrayElements = 0;
+                uint numModeInfoArrayElements = 0;
+
+                int status = PInvoke.GetDisplayConfigBufferSizes(4, out numPathArrayElements, out numModeInfoArrayElements);
+
+                if (status != 0)
                 {
-                    int res = PInvoke.QueryDisplayConfig(4, ref numPathArrayElements, pathArrayPtr, ref numModeInfoArrayElements, modeInfoArrayPtr, out currentTopologyID);
+                    return;
+                }
 
-                    if (res != 0)
+                DISPLAYCONFIG_PATH_INFO[] pathArray = new DISPLAYCONFIG_PATH_INFO[numPathArrayElements];
+                DISPLAYCONFIG_MODE_INFO[] modeInfoArray = new DISPLAYCONFIG_MODE_INFO[numModeInfoArrayElements];
+                DISPLAYCONFIG_TOPOLOGY_ID currentTopologyID = 0;
+
+                fixed (DISPLAYCONFIG_PATH_INFO* pathArrayPtr = pathArray)
+                {
+                    fixed (DISPLAYCONFIG_MODE_INFO* modeInfoArrayPtr = modeInfoArray)
                     {
-                        return;
-                    }
+                        int res = PInvoke.QueryDisplayConfig(4, ref numPathArrayElements, pathArrayPtr, ref numModeInfoArrayElements, modeInfoArrayPtr, out currentTopologyID);
 
-                    IsDeckOnlyDisplay = currentTopologyID == DISPLAYCONFIG_TOPOLOGY_ID.DISPLAYCONFIG_TOPOLOGY_INTERNAL;
+                        if (res != 0)
+                        {
+                            return;
+                        }
+
+                        IsDeckOnlyDisplay = currentTopologyID == DISPLAYCONFIG_TOPOLOGY_ID.DISPLAYCONFIG_TOPOLOGY_INTERNAL;
+                    }
                 }
             }
         }
@@ -202,25 +196,6 @@ namespace PowerControl.Helpers
             {
                 Marshal.FreeHGlobal(addr);
             }
-        }
-
-        private static bool HaveScreensChanged(Screen[] newScreens)
-        {
-            if (screens.Length != newScreens.Length)
-            {
-                return true;
-            }
-
-            for (int i = 0; i < screens.Length; i++)
-            {
-                if (screens[i].DeviceName != newScreens[i].DeviceName ||
-                    screens[i].Primary != newScreens[i].Primary)
-                {
-                    return true;
-                }
-            }
-
-            return false;
         }
 
         [DllImport("setupapi.dll", CharSet = CharSet.Auto)]
