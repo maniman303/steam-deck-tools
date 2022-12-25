@@ -186,7 +186,7 @@ namespace PowerControl
                 neptuneTimer.Enabled = true;
 
                 neptuneQuickSettingsTimer = new System.Windows.Forms.Timer(components);
-                neptuneQuickSettingsTimer.Interval = 1000 / 60;
+                neptuneQuickSettingsTimer.Interval = 1000 / 30;
                 neptuneQuickSettingsTimer.Tick += NeptuneQuickSettingsTimer_Tick;
                 neptuneQuickSettingsTimer.Enabled = true;
 
