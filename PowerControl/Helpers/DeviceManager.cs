@@ -106,7 +106,7 @@ namespace PowerControl.Helpers
             int count = results.Count;
 
             IsDeckOnlyDisplay = count <= 1;
-            if (count <= 1)
+            if (count == 1)
             {
                 IsDeckOnlyDisplay = true;
             }

@@ -37,6 +37,7 @@ namespace PowerControl
 
         System.Windows.Forms.Timer neptuneQuickSettingsTimer;
         DateTime? neptuneQuickSettingsNextKey;
+        DateTime neptuneReadTime = DateTime.Now;
 
         ProfilesController profilesController;
 
@@ -186,7 +187,7 @@ namespace PowerControl
                 neptuneTimer.Enabled = true;
 
                 neptuneQuickSettingsTimer = new System.Windows.Forms.Timer(components);
-                neptuneQuickSettingsTimer.Interval = 1000 / 30;
+                neptuneQuickSettingsTimer.Interval = 1000 / 40;
                 neptuneQuickSettingsTimer.Tick += NeptuneQuickSettingsTimer_Tick;
                 neptuneQuickSettingsTimer.Enabled = true;
 
@@ -271,6 +272,17 @@ namespace PowerControl
 
         private void NeptuneQuickSettingsTimer_Tick(object? sender, EventArgs e)
         {
+            var readDiff = DateTime.Now - neptuneReadTime;
+
+            if (readDiff.Seconds >= 4)
+            {
+                neptuneDevice.EndRead();
+                neptuneDevice.Close();
+                neptuneDevice.OpenDevice();
+                neptuneDevice.BeginRead();
+                neptuneReadTime = DateTime.Now;
+            }
+
             var input = neptuneDeviceState;
             bool isClicked = input.buttons5 == SDCButton5.BTN_QUICK_ACCESS;
 
@@ -462,10 +474,11 @@ namespace PowerControl
 
         private void DisplayChangesHandler(object? sender, EventArgs e)
         {
-            if (DeviceManager.RefreshDisplays())
+            if (DeviceManager.RefreshDisplays() && Screen.AllScreens.Length > 0)
             {
                 context?.Post((object? state) =>
                 {
+                    Thread.Sleep(1000);
                     rootMenu.Update();
                     Options.RefreshRate.Instance?.Reset();
                     Options.FPSLimit.Instance?.Reset();
