@@ -147,10 +147,16 @@ namespace PowerControl.Menu
         {
             int index = Options.IndexOf(SelectedOption ?? ActiveOption ?? "");
             if (index < 0)
-                index = -change;
+            {
+                if (change > 0)
+                    SelectIndex(0); // select first
+                else
+                    SelectIndex(Options.Count); // select last
+                return;
+            }
 
             if (CycleOptions)
-                SelectIndex((index + change) % Options.Count);
+                SelectIndex((index + change + Options.Count) % Options.Count);
             else
                 SelectIndex(index + change);
         }

@@ -106,9 +106,11 @@ namespace PowerControl.Menu
             if (Show())
                 return;
 
-            int index = Selected is not null ? Items.IndexOf(Selected) : -change;
-            if (index < 0)
-                index = -change; // Select first or last item depending on change
+            int index = -1;
+            if (Selected is not null)
+                index = Items.IndexOf(Selected);
+            if (index < 0 && change < 0)
+                index = Items.Count; // Select last item if want to iterate down
 
             for (int i = 0; i < Items.Count; i++)
             {
