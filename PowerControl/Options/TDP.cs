@@ -9,6 +9,7 @@ namespace PowerControl.Options
         public static Menu.MenuItemWithOptions Instance = new Menu.MenuItemWithOptions()
         {
             Name = "TDP",
+            PersistentKey = "TDP",
             OptionsValues = delegate ()
             {
                 List<string> options = new List<string>() { "3W", "4W", "5W", "6W", "7W", "8W", "10W", "12W", "15W" };
