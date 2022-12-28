@@ -37,7 +37,6 @@ namespace PowerControl
 
         System.Windows.Forms.Timer neptuneQuickSettingsTimer;
         DateTime? neptuneQuickSettingsNextKey;
-        DateTime neptuneReadTime = DateTime.Now;
 
         ProfilesController profilesController;
 
@@ -115,6 +114,10 @@ namespace PowerControl
                 if (!isOSDToggled)
                 {
                     hideOSD();
+                }
+                else
+                {
+                    osdDismissTimer.Stop();
                 }
             };
 
@@ -220,6 +223,37 @@ namespace PowerControl
                     dismissNeptuneInput();
                 });
             }
+
+            SystemEvents.PowerModeChanged += OnPowerChange;
+        }
+
+        private void OnPowerChange(object s, PowerModeChangedEventArgs e)
+        {
+            switch (e.Mode)
+            {
+                case PowerModes.Suspend:
+                    neptuneTimer?.Stop();
+                    neptuneQuickSettingsTimer?.Stop();
+
+                    if (Settings.Default.EnableNeptuneController)
+                    {
+                        neptuneDevice.EndRead();
+                        neptuneDevice.Close();
+                    }
+                    break;
+                case PowerModes.Resume:
+                    if (Settings.Default.EnableNeptuneController)
+                    {
+                        neptuneTimer.Start();
+                        neptuneQuickSettingsTimer.Start();
+
+                        neptuneDevice.EndRead();
+                        neptuneDevice.Close();
+                        neptuneDevice.OpenDevice();
+                        neptuneDevice.BeginRead();
+                    }
+                    break;
+            }
         }
 
         private void OsdTimer_Tick(object? sender, EventArgs e)
@@ -272,17 +306,6 @@ namespace PowerControl
 
         private void NeptuneQuickSettingsTimer_Tick(object? sender, EventArgs e)
         {
-            var readDiff = DateTime.Now - neptuneReadTime;
-
-            if (readDiff.Seconds >= 4)
-            {
-                neptuneDevice.EndRead();
-                neptuneDevice.Close();
-                neptuneDevice.OpenDevice();
-                neptuneDevice.BeginRead();
-                neptuneReadTime = DateTime.Now;
-            }
-
             var input = neptuneDeviceState;
             bool isClicked = input.buttons5 == SDCButton5.BTN_QUICK_ACCESS;
 
