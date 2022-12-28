@@ -320,14 +320,7 @@ namespace PowerControl
 
             if (isClicked && neptuneQuickSettingsNextKey == null)
             {
-                string? currentApplication;
-
-                RTSS.IsOSDForeground(out _, out currentApplication);
-
-                if (currentApplication == null || (currentApplication?.ToLower().Contains("playnite") ?? false))
-                {
-                    neptuneQuickSettingsNextKey = DateTime.Now;
-                }
+                neptuneQuickSettingsNextKey = DateTime.Now;
             }
 
             var time = neptuneQuickSettingsNextKey;
