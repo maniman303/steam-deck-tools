@@ -7,6 +7,7 @@ namespace PowerControl.Options
         public static Menu.MenuItemWithOptions Instance = new Menu.MenuItemWithOptions()
         {
             Name = "GPU",
+            PersistentKey = "GPUFreq",
             Options = { "Default", "400MHz", "800MHz", "1200MHz", "1600MHz" },
             ApplyDelay = 1000,
             Visible = VangoghGPU.IsSupported,
@@ -34,7 +35,10 @@ namespace PowerControl.Options
                             return selected;
                         }
 
-                        sd.HardMinGfxClock = uint.Parse(selected.Replace("MHz", ""));
+                        uint value = uint.Parse(selected.Replace("MHz", ""));
+                        value = Math.Min(Math.Max(value, 200), 1600);
+
+                        sd.HardMinGfxClock = value;
                         return selected;
                     }
                 });
