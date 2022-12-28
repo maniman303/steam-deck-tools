@@ -1,5 +1,6 @@
 using CommonHelpers;
 using ExternalHelpers;
+using Microsoft.Win32;
 using System.ComponentModel;
 using System.Diagnostics;
 
@@ -15,6 +16,8 @@ namespace SteamController
             { "*.desktop.cs", new Profiles.Predefined.DesktopProfile() { Name = "Desktop" } },
             { "*.x360.cs", new Profiles.Predefined.X360HapticProfile() { Name = "X360" } }
         };
+
+        private System.Windows.Forms.Timer? contextStateUpdate;
 
         Container components = new Container();
         NotifyIcon notifyIcon;
@@ -152,10 +155,12 @@ namespace SteamController
 
             notifyIcon.ContextMenuStrip = contextMenu;
 
-            var contextStateUpdate = new System.Windows.Forms.Timer(components);
+            contextStateUpdate = new System.Windows.Forms.Timer(components);
             contextStateUpdate.Interval = 250;
             contextStateUpdate.Enabled = true;
             contextStateUpdate.Tick += ContextStateUpdate_Tick;
+
+            SystemEvents.PowerModeChanged += OnPowerChange;
 
             context.SelectDefault = () =>
             {
@@ -177,6 +182,19 @@ namespace SteamController
             };
 
             context.Start();
+        }
+
+        private void OnPowerChange(object s, PowerModeChangedEventArgs e)
+        {
+            switch (e.Mode)
+            {
+                case PowerModes.Suspend:
+                    contextStateUpdate?.Stop();
+                    break;
+                case PowerModes.Resume:
+                    contextStateUpdate?.Start();
+                    break;
+            }
         }
 
         private void ContextStateUpdate_Tick(object? sender, EventArgs e)

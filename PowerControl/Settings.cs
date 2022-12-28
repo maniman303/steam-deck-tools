@@ -61,7 +61,7 @@ namespace PowerControl
 
         public bool EnableExperimentalFeatures
         {
-            get { return Instance.IsDEBUG; }
+            get { return true; }
         }
 
         public bool AckAntiCheat(String title, String name, String message)

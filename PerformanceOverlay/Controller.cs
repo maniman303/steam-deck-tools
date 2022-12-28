@@ -138,6 +138,11 @@ namespace PerformanceOverlay
             if (e.Mode == Microsoft.Win32.PowerModes.Resume)
             {
                 Instance.HardwareComputer.Reset();
+                osdTimer.Start();
+            }
+            else if (e.Mode == Microsoft.Win32.PowerModes.Suspend)
+            {
+                osdTimer.Stop();
             }
         }
 
@@ -295,8 +300,8 @@ namespace PerformanceOverlay
             try
             {
                 // recreate OSD if not index 0
-                if (OSDHelpers.OSDIndex("PerformanceOverlay") != 0)
-                    osdClose();
+                //if (OSDHelpers.OSDIndex("PerformanceOverlay") != 0)
+                //    osdClose();
                 if (osd == null)
                     osd = new OSD("PerformanceOverlay");
 

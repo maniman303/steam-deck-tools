@@ -8,7 +8,7 @@ namespace PowerControl.Options
         public static Menu.MenuItemWithOptions Instance = new Menu.MenuItemWithOptions()
         {
             Name = "TDP",
-            Options = { "3W", "4W", "5W", "6W", "7W", "8W", "10W", "12W", "15W" },
+            Options = { "3W", "4W", "5W", "6W", "7W", "8W", "10W", "12W", "15W", "16W", "17W" },
             ApplyDelay = 1000,
             ResetValue = () => { return "15W"; },
             ActiveOption = "?",

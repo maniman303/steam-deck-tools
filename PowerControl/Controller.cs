@@ -198,7 +198,8 @@ namespace PowerControl
 
                 deviceReadTimer = new System.Windows.Forms.Timer(components);
                 deviceReadTimer.Interval = 3000;
-                deviceReadTimer.Tick += 
+                deviceReadTimer.Tick += DeviceRead_Tick;
+                deviceReadTimer.Start();
 
                 neptuneDevice.OnInputReceived += NeptuneDevice_OnInputReceived;
                 neptuneDevice.OpenDevice();
@@ -245,11 +246,6 @@ namespace PowerControl
                     if (Settings.Default.EnableNeptuneController)
                     {
                         neptuneDevice.EndRead();
-                        try
-                        {
-                            neptuneDevice.Close();
-                        }
-                        catch (Exception ex) { }
                     }
                     break;
                 case PowerModes.Resume:
@@ -314,12 +310,6 @@ namespace PowerControl
         private void DeviceRead_Tick(object? sender, EventArgs e)
         {
             neptuneDevice.EndRead();
-            try
-            {
-                neptuneDevice.Close();
-            }
-            catch (Exception ex) { }
-
             neptuneDevice.OpenDevice();
             neptuneDevice.BeginRead();
         }

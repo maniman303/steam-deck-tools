@@ -101,7 +101,7 @@ namespace PowerControl.Menu
             {
                 ActiveOption = ApplyValue(SelectedOption);
 
-                if (AfterApply != null && !silent)
+                if (wasOption != ActiveOption && AfterApply != null && !silent)
                     AfterApply();
             }
             else
