@@ -247,8 +247,6 @@ namespace PowerControl
                         neptuneTimer.Start();
                         neptuneQuickSettingsTimer.Start();
 
-                        neptuneDevice.EndRead();
-                        neptuneDevice.Close();
                         neptuneDevice.OpenDevice();
                         neptuneDevice.BeginRead();
                     }
