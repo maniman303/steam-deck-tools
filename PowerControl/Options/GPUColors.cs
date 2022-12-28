@@ -7,7 +7,7 @@ namespace PowerControl.Options
         public static Menu.MenuItemWithOptions Instance = new Menu.MenuItemWithOptions()
         {
             Name = "Colors",
-            PersistentKey = "Colors",
+            PersistentKey = Settings.Default.EnableExperimentalFeatures ? "Colors" : null,
             ApplyDelay = 1000,
             Options = Enum.GetNames<DCE.Mode>(),
             CurrentValue = delegate ()
@@ -18,6 +18,11 @@ namespace PowerControl.Options
             {
                 if (DCE.Current is null)
                     return null;
+
+                if (string.IsNullOrEmpty(selected))
+                {
+                    selected = DCE.Mode.Normal.ToString();
+                }
 
                 DCE.Current = Enum.Parse<DCE.Mode>(selected);
                 RadeonSoftware.Kill();

@@ -9,7 +9,7 @@ namespace PowerControl.Options
         public static Menu.MenuItemWithOptions Instance = new Menu.MenuItemWithOptions()
         {
             Name = "TDP",
-            PersistentKey = "TDP",
+            PersistentKey = Settings.Default.EnableExperimentalFeatures ? "TDP" : null,
             OptionsValues = delegate ()
             {
                 List<string> options = new List<string>() { "3W", "4W", "5W", "6W", "7W", "8W", "10W", "12W", "15W" };
@@ -33,6 +33,11 @@ namespace PowerControl.Options
                     "Changing TDP requires kernel access for a short period. Leave the game if it uses anti-cheat protection.")
                 )
                     return null;
+
+                if (string.IsNullOrEmpty(selected))
+                {
+                    selected = "15W";
+                }
 
                 uint mW = uint.Parse(selected.Replace("W", "")) * 1000;
                 mW = Math.Max(Math.Min(mW, 17000), 3000);

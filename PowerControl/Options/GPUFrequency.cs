@@ -7,7 +7,7 @@ namespace PowerControl.Options
         public static Menu.MenuItemWithOptions Instance = new Menu.MenuItemWithOptions()
         {
             Name = "GPU",
-            PersistentKey = "GPUFreq",
+            PersistentKey = Settings.Default.EnableExperimentalFeatures ? "GPUFreq" : null,
             Options = { "Default", "400MHz", "800MHz", "1200MHz", "1600MHz" },
             ApplyDelay = 1000,
             Visible = VangoghGPU.IsSupported,
@@ -28,6 +28,11 @@ namespace PowerControl.Options
                     {
                         if (sd is null)
                             return null;
+
+                        if (string.IsNullOrEmpty(selected))
+                        {
+                            selected = "Default";
+                        }
 
                         if (selected == "Default")
                         {
