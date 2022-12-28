@@ -61,7 +61,7 @@ namespace PowerControl
 
         public bool EnableExperimentalFeatures
         {
-            get { return true; }
+            get { return Get<bool>("EnableExperimental", false); }
         }
 
         public bool AckAntiCheat(String title, String name, String message)
