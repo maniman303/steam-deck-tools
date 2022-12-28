@@ -35,8 +35,10 @@ namespace PowerControl
         DateTime? neptuneDeviceNextKey;
         System.Windows.Forms.Timer neptuneTimer;
 
-        System.Windows.Forms.Timer neptuneQuickSettingsTimer;
+        System.Windows.Forms.Timer? neptuneQuickSettingsTimer;
         DateTime? neptuneQuickSettingsNextKey;
+
+        System.Windows.Forms.Timer? deviceReadTimer;
 
         ProfilesController profilesController;
 
@@ -194,6 +196,10 @@ namespace PowerControl
                 neptuneQuickSettingsTimer.Tick += NeptuneQuickSettingsTimer_Tick;
                 neptuneQuickSettingsTimer.Enabled = true;
 
+                deviceReadTimer = new System.Windows.Forms.Timer(components);
+                deviceReadTimer.Interval = 3000;
+                deviceReadTimer.Tick += 
+
                 neptuneDevice.OnInputReceived += NeptuneDevice_OnInputReceived;
                 neptuneDevice.OpenDevice();
                 neptuneDevice.BeginRead();
@@ -234,21 +240,24 @@ namespace PowerControl
                 case PowerModes.Suspend:
                     neptuneTimer?.Stop();
                     neptuneQuickSettingsTimer?.Stop();
+                    deviceReadTimer?.Stop();
 
                     if (Settings.Default.EnableNeptuneController)
                     {
                         neptuneDevice.EndRead();
-                        neptuneDevice.Close();
+                        try
+                        {
+                            neptuneDevice.Close();
+                        }
+                        catch (Exception ex) { }
                     }
                     break;
                 case PowerModes.Resume:
                     if (Settings.Default.EnableNeptuneController)
                     {
                         neptuneTimer.Start();
-                        neptuneQuickSettingsTimer.Start();
-
-                        neptuneDevice.OpenDevice();
-                        neptuneDevice.BeginRead();
+                        neptuneQuickSettingsTimer?.Start();
+                        deviceReadTimer?.Start();
                     }
                     break;
             }
@@ -302,6 +311,18 @@ namespace PowerControl
             neptuneDeviceNextKey = DateTime.UtcNow.AddDays(1);
         }
 
+        private void DeviceRead_Tick(object? sender, EventArgs e)
+        {
+            neptuneDevice.EndRead();
+            try
+            {
+                neptuneDevice.Close();
+            }
+            catch (Exception ex) { }
+
+            neptuneDevice.OpenDevice();
+            neptuneDevice.BeginRead();
+        }
         private void NeptuneQuickSettingsTimer_Tick(object? sender, EventArgs e)
         {
             var input = neptuneDeviceState;
