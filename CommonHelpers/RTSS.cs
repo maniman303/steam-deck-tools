@@ -88,9 +88,14 @@ namespace CommonHelpers
 
         public static List<string> GetCurrentApps()
         {
-            var apps = OSD.GetAppEntries(AppFlags.MASK).Select(e => ExtractAppName(e.Name)).Where(n => n != string.Empty).ToList();
+            try
+            {
+                var apps = OSD.GetAppEntries(AppFlags.MASK).Select(e => ExtractAppName(e.Name)).Where(n => n != string.Empty).ToList();
 
-            return apps;
+                return apps;
+            }
+            catch { }
+            return new List<string>();
         }
 
         public static uint EnableFlag(uint flag, bool status)
