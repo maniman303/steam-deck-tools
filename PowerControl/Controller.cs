@@ -503,7 +503,7 @@ namespace PowerControl
             {
                 context?.Post((object? state) =>
                 {
-                    Thread.Sleep(1000);
+                    Thread.Sleep(500);
                     rootMenu.Update();
                     Options.RefreshRate.Instance?.Reset();
                     Options.FPSLimit.Instance?.Reset();

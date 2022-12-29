@@ -9,11 +9,21 @@ namespace PowerControl.Options
             CycleOptions = false,
             CurrentValue = delegate ()
             {
+                if (!Settings.Default.EnableOSDQuickSettings)
+                {
+                    return null;
+                }
+
                 try { return Helpers.AudioManager.GetMasterVolume(5.0).ToString(); }
                 catch (Exception) { return null; }
             },
             ApplyValue = (selected) =>
             {
+                if (!Settings.Default.EnableOSDQuickSettings)
+                {
+                    return null;
+                }
+
                 try
                 {
                     Helpers.AudioManager.SetMasterVolumeMute(false);

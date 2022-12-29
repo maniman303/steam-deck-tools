@@ -53,6 +53,12 @@ namespace PowerControl
             set { Set("EnableVolumeControls", value); }
         }
 
+        public bool EnableOSDQuickSettings
+        {
+            get { return Get<bool>("EnableOSDQuickSettings", false); }
+            set { Set("EnableOSDQuickSettings", value); }
+        }
+
         public bool EnableQuickSettings
         {
             get { return Get<bool>("EnableQuickSettings", true); }

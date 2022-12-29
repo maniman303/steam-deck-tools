@@ -17,6 +17,11 @@ namespace PowerControl.Options
             },
             OptionsValues = delegate ()
             {
+                if (!Settings.Default.EnableOSDQuickSettings)
+                {
+                    return null;
+                }
+
                 var resolutions = DisplayResolutionController.GetAllResolutions();
                 if (resolutions.Count() > 1)
                     return resolutions.Select(item => item.ToString()).ToArray();
@@ -24,12 +29,22 @@ namespace PowerControl.Options
             },
             CurrentValue = delegate ()
             {
+                if (!Settings.Default.EnableOSDQuickSettings)
+                {
+                    return null;
+                }
+
                 if (!GPUScaling.SafeResolutionChange && !Settings.Default.EnableExperimentalFeatures)
                     return null;
                 return DisplayResolutionController.GetResolution().ToString();
             },
             ApplyValue = (selected) =>
             {
+                if (!Settings.Default.EnableOSDQuickSettings)
+                {
+                    return null;
+                }
+
                 var selectedResolution = new DisplayResolutionController.DisplayResolution(selected);
                 DisplayResolutionController.SetResolution(selectedResolution);
                 // force refresh Refresh Rate
